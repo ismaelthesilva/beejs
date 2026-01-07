@@ -1,8 +1,8 @@
-name: clone-tabnews
+name: beejs
 
 services:
   database:
-    container_name: tabnews-db
+    container_name: bee-localdb
     image: postgres:16.0-alpine3.18
     env_file:
       - ../.env.development
