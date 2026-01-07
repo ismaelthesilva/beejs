@@ -1,74 +1,58 @@
-import database from "infra/database.js";
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <main className="container mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-screen">
+        <div className="mb-6">
+          <img
+            src="/beeTechy-logo.png"
+            alt="BeeTech Logo"
+            className="w-16 h-16 object-contain opacity-90"
+          />
+        </div>
 
-async function handler(request, response) {
-  if (request.method === "GET") {
-    return getAllUsers(request, response);
-  }
+        <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 tracking-tight">
+          Welcome to <span className="text-orange-500">BeeTechy</span>
+        </h1>
 
-  if (request.method === "POST") {
-    return createUser(request, response);
-  }
+        <p className="text-lg md:text-xl text-gray-400 text-center mb-12 max-w-xl">
+          A full-stack Next.js application with PostgreSQL
+        </p>
 
-  return response.status(405).json({ error: "Method not allowed" });
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-5xl">
+          <a
+            href="/api/v1/status"
+            className="group p-6 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer"
+          >
+            <h2 className="text-lg font-semibold mb-2 group-hover:text-orange-500 transition-colors">
+              API Status
+            </h2>
+          </a>
+
+          <a
+            href="/api/v1/migrations"
+            className="group p-6 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer"
+          >
+            <h2 className="text-lg font-semibold mb-2 group-hover:text-orange-500 transition-colors">
+              Migrations
+            </h2>
+          </a>
+
+          <a
+            href="/api/v1/users"
+            className="group p-6 bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl hover:border-orange-500 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer"
+          >
+            <h2 className="text-lg font-semibold mb-2 group-hover:text-orange-500 transition-colors">
+              Users API
+            </h2>
+          </a>
+        </div>
+      </main>
+
+      <footer className="border-t border-neutral-800 py-6">
+        <p className="text-center text-gray-600 text-sm">
+          Built for technical interview • 2026
+        </p>
+      </footer>
+    </div>
+  );
 }
-
-async function getAllUsers(request, response) {
-  try {
-    const result = await database.query({
-      text: "SELECT id, username, email, created_at FROM users ORDER BY created_at DESC;",
-    });
-
-    return response.status(200).json({
-      users: result.rows,
-      total: result.rowCount,
-    });
-  } catch (error) {
-    console.error("Database error:", error);
-    return response.status(500).json({ error: "Internal server error" });
-  }
-}
-
-async function createUser(request, response) {
-  const { username, email } = request.body;
-
-  // Validation
-  if (!username || !email) {
-    return response.status(400).json({
-      error: "Username and email are required",
-    });
-  }
-
-  // Email format validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return response.status(400).json({
-      error: "Invalid email format",
-    });
-  }
-
-  try {
-    // Parameterized query prevents SQL injection
-    const result = await database.query({
-      text: `
-        INSERT INTO users (username, email)
-        VALUES ($1, $2)
-        RETURNING id, username, email, created_at;
-      `,
-      values: [username, email],
-    });
-
-    return response.status(201).json(result.rows[0]);
-  } catch (error) {
-    // Handle duplicate key error (PostgreSQL error code 23505)
-    if (error.code === "23505") {
-      return response.status(400).json({
-        error: "Username or email already exists",
-      });
-    }
-
-    console.error("Database error:", error);
-    return response.status(500).json({ error: "Internal server error" });
-  }
-}
-
-export default handler;
