@@ -15,12 +15,24 @@ export default async function migrations(request, response) {
   };
 
   if (request.method === "GET") {
+    // Show pending migrations
     const pendingMigrations = await migrationsRunner({
       ...defaultMigrationsOptions,
     });
+
+    // Also show applied migrations
+    const appliedMigrations = await dbClient.query(
+      "SELECT name, run_on FROM pgmigrations ORDER BY run_on DESC;",
+    );
+
     await dbClient.end();
-    return response.status(200).json(pendingMigrations);
+
+    return response.status(200).json({
+      pending: pendingMigrations,
+      applied: appliedMigrations.rows,
+    });
   }
+
   if (request.method === "POST") {
     const migratedMigrations = await migrationsRunner({
       ...defaultMigrationsOptions,
@@ -32,5 +44,6 @@ export default async function migrations(request, response) {
     }
     return response.status(200).json(migratedMigrations);
   }
+
   return response.status(405).end();
 }
