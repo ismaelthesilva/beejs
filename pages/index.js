@@ -11,7 +11,7 @@ export default function Home() {
         </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 tracking-tight">
-          Welcome to <span className="text-orange-500">BeeTechy</span>
+          Welcome to <span className="text-orange-500">BeeTechy (Staging)</span>
         </h1>
 
         <p className="text-lg md:text-xl text-gray-400 text-center mb-12 max-w-xl">
